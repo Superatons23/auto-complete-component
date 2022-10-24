@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect, MouseEventHandler } from "react";
-import { getAllCountries } from "../api";
-import { ICountry, IPais } from "../interfaces/interfaces";
+import React, { useState, useRef, useEffect } from "react";
+import { ICountry } from "../interfaces/interfaces";
 import "./AutoComplete.css";
 
 interface Props {
