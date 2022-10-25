@@ -31,9 +31,11 @@ break my app.**
 Fragments are used in react.js and help us to create many components without needing to find the DOM.
 
 example where it break my app.
+
 ![alt text](https://media.discordapp.net/attachments/952967166385356810/1034254882422652928/unknown.png)
 
 example using React.Fragment
+
 ![alt text](https://cdn.discordapp.com/attachments/952967166385356810/1034254749530333284/unknown.png)
 
 **6. Give 3 examples of the HOC pattern.**
@@ -67,4 +69,5 @@ This method takes two arguments. setState consumes a lot of resources that is wh
 **11. How to render an HTML string coming from the server.**
 
 Example:
+
 ![alt text](https://media.discordapp.net/attachments/952967166385356810/1034254517400764497/unknown.png)
