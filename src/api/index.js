@@ -1,5 +1,5 @@
-export const getAllCountries = () => {
-  return fetch("https://restcountries.com/v3.1/all")
+export const getCountriesFilter = (countryName) => {
+  return fetch(`https://restcountries.com/v2/name/${countryName}`)
     .then((res) => res.json())
-    .catch((err) => console.log(err));
+    .catch((err) => err);
 };

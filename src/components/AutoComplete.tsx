@@ -1,26 +1,41 @@
 import React, { useState, useRef, useEffect } from "react";
+import { getCountriesFilter } from "../api";
 import { ICountry } from "../interfaces/interfaces";
 import "./AutoComplete.css";
 
-interface Props {
-  countries: ICountry[];
-}
-
-const AutoComplete = ({ countries }: Props) => {
+const AutoComplete = () => {
   const autoCompleteRef = useRef<HTMLInputElement | null>(null);
-  const [value, setValue] = useState<string>();
-  const [isDisplayed, setisDisplayed] = useState<Boolean>(false);
-  const options: ICountry[] = countries.filter((option) =>
-    option.name.official.toLowerCase().includes(value?.toLowerCase() || "")
-  );
-  console.log(countries);
+  const [value, setValue] = useState<string>("");
+  const [showOptions, setshowOptions] = useState<Boolean>(false);
+
+  const [countries, setCountries] = useState<ICountry[]>([]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.currentTarget.value);
   };
   const handleCountry = (e: string) => {
     setValue(e);
-    setisDisplayed(false);
+    setshowOptions(false);
   };
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    //get countries matching
+    const getCountries = async () => {
+      const response = await getCountriesFilter(value);
+
+      if (!isCancelled) {
+        !response.message ? setCountries(response) : setCountries([]);
+      }
+    };
+    getCountries();
+
+    //cleanup
+    return () => {
+      isCancelled = true;
+    };
+  }, [value]);
 
   useEffect(() => {
     const handleOutside = (ev: Event) => {
@@ -28,7 +43,7 @@ const AutoComplete = ({ countries }: Props) => {
         autoCompleteRef.current &&
         !autoCompleteRef.current.contains(ev.target as Node)
       ) {
-        setisDisplayed(false);
+        setshowOptions(false);
       }
     };
     document.addEventListener("click", handleOutside);
@@ -37,34 +52,41 @@ const AutoComplete = ({ countries }: Props) => {
     };
   }, []);
 
+  const getMatchingText = (value: string, country: string) => {
+    const regex = new RegExp(value, "gi");
+    const newText = country.replace(regex, `<mark class="highlight">$&</mark>`);
+    //<span dangerouslySetInnerHTML={{ __html: newText }} />
+    return newText;
+  };
+
   return (
     <div className="auto-complete" ref={autoCompleteRef}>
       <input
         value={value}
         onChange={handleChange}
         placeholder="Search"
-        onFocus={() => setisDisplayed(true)}
+        onFocus={() => setshowOptions(true)}
       />
 
       {/**show suggestions */}
-      {isDisplayed && (
+      {showOptions && (
         <ul className="options">
-          {options?.map((option) => (
-            <li
-              onClick={() => handleCountry(option.name.official)}
-              key={option.name.official}
-            >
-              <p>
-                <strong>{value}</strong>
-
-                {value
-                  ? `${option.name.official
-                      .toLowerCase()
-                      .replace(value?.toLowerCase() || "", "")}`
-                  : `${option.name.official}`}
-              </p>
-            </li>
-          ))}
+          {countries.length > 0 &&
+            countries?.map(
+              (option) =>
+                getMatchingText(value, option.name) !== option.name && (
+                  <li
+                    onClick={() => handleCountry(option.name)}
+                    key={option.name}
+                  >
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: getMatchingText(value, option.name),
+                      }}
+                    />
+                  </li>
+                )
+            )}
         </ul>
       )}
     </div>
